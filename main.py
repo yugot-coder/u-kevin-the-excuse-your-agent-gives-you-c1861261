@@ -46,6 +46,18 @@ def validate_entry(text):
     return problems
 
 
+def verify_written(path, expected):
+    """Re-read the written file and confirm it holds exactly the entry line.
+
+    Returns a list of problems; an empty list means the file is correct.
+    """
+    with open(path, "r", encoding="utf-8", newline="") as handle:
+        written = handle.read()
+    if written != expected:
+        return ["entry.txt does not match the entry line"]
+    return []
+
+
 def main():
     """Write the entry line and verify the file holds exactly that line."""
     problems = validate_entry(ENTRY)
@@ -60,10 +72,10 @@ def main():
     with open(out_path, "w", encoding="utf-8", newline="") as handle:
         handle.write(ENTRY)
 
-    with open(out_path, "r", encoding="utf-8", newline="") as handle:
-        written = handle.read()
-    if written != ENTRY:
-        print("entry.txt does not match the entry line", file=sys.stderr)
+    problems = verify_written(out_path, ENTRY)
+    if problems:
+        for problem in problems:
+            print("invalid entry: %s" % problem, file=sys.stderr)
         return 1
 
     print("wrote %s (%d characters)" % (out_path, len(ENTRY)))
